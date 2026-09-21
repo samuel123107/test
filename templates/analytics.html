@@ -1,0 +1,62 @@
+﻿{% extends "base.html" %}
+
+{% block content %}
+<div class="main-content" style="margin-left: 0; padding-top: 80px; max-width: 1200px; margin: 0 auto;">
+    <div style="margin-bottom: 28px">
+        <h1 style="font-size: 32px; font-weight: 800; letter-spacing: -.04em; color: #e8eaf0">Efficiency Analytics</h1>
+        <p style="color: #4a5270; font-size: 14px">Deep dive into your emotional and productivity patterns.</p>
+    </div>
+
+    <!-- Stats Grid -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 32px;">
+        <div class="card" style="padding: 24px;">
+            <div style="font-size: 11px; font-weight: 700; color: #a8ff3e; text-transform: uppercase; margin-bottom: 8px;">Productivity Score</div>
+            <div style="font-size: 44px; font-weight: 800; color: #e8eaf0;">{{ productivity_score }}</div>
+            <div class="progress-bar" style="margin-top: 12px;"><div class="progress-fill" style="width:{{ productivity_score }}%"></div></div>
+        </div>
+        <div class="card" style="padding: 24px;">
+            <div style="font-size: 11px; font-weight: 700; color: #60a5fa; text-transform: uppercase; margin-bottom: 8px;">Stability Index</div>
+            <div style="font-size: 44px; font-weight: 800; color: #e8eaf0;">{{ stability.stability_score }}%</div>
+            <p style="font-size: 12px; color: #4a5270; margin-top: 10px;">{{ stability.label }}</p>
+        </div>
+        <div class="card" style="padding: 24px;">
+            <div style="font-size: 11px; font-weight: 700; color: #fb923c; text-transform: uppercase; margin-bottom: 8px;">Momentum</div>
+            <div style="font-size: 44px; font-weight: 800; color: #e8eaf0;">{{ momentum.momentum_score }}</div>
+            <p style="font-size: 12px; color: #4a5270; margin-top: 10px;">{{ momentum.trend|title }} trend</p>
+        </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
+        <div class="card" style="padding: 24px;">
+            <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 20px; color: #c8d0e0;">Weekly Emotional Trend</h3>
+            <div style="height: 300px; display: flex; align-items: flex-end; gap: 10px; padding-bottom: 20px;">
+                {% for day in trend_data %}
+                <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px;">
+                    <div style="width: 100%; background: rgba(168, 255, 62, 0.2); border: 1px solid rgba(168, 255, 62, 0.3); border-radius: 8px; height: {{ (day.count / (total_sessions or 1) * 300)|round|int }}px; min-height: 10px;"></div>
+                    <span style="font-size: 10px; color: #3a4055;">{{ day.date[-2:] }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="card" style="padding: 24px;">
+            <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 20px; color: #c8d0e0;">Dominant State</h3>
+            <div style="text-align: center; padding: 20px 0;">
+                <div style="font-size: 64px; margin-bottom: 10px;">{{ emotion_icons[top_emotion] }}</div>
+                <div style="font-size: 24px; font-weight: 800; color: #a8ff3e;">{{ top_emotion|title }}</div>
+                <p style="font-size: 13px; color: #4a5270; margin-top: 8px;">Constitutes {{ (stats[top_emotion] / total_sessions * 100)|round|int if total_sessions > 0 else 0 }}% of your time</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="card" style="margin-top: 20px; padding: 24px; background: radial-gradient(ellipse at 100% 50%, rgba(168, 255, 62, 0.08) 0%, transparent 70%);">
+        <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 20px; color: #c8d0e0;">AI Coach Strategy</h3>
+        <div style="display: flex; gap: 20px; align-items: flex-start;">
+            <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(168, 255, 62, 0.1); border: 1px solid rgba(168, 255, 62, 0.2); display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0;">🤖</div>
+            <div>
+                <h4 style="font-size: 18px; font-weight: 800; color: #e8eaf0; margin-bottom: 8px;">{{ coach_advice.title }}</h4>
+                <p style="color: #8891a4; line-height: 1.7; font-size: 14px;">{{ coach_advice.advice }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

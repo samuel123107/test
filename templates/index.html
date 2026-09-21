@@ -1,0 +1,120 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emotion-Aware Study Assistant</title>
+    <meta name="description" content="AI-powered study assistant that adapts to your emotional state">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Navbar -->
+        <nav class="navbar">
+            <div class="nav-brand">🧠 Study Assistant</div>
+            <div class="nav-links">
+                <a href="/" class="nav-link active">Home</a>
+                <a href="/analytics" class="nav-link">Analytics</a>
+                <a href="/weekly-report" class="nav-link">Weekly Report</a>
+                <a href="/profile" class="nav-link">Profile</a>
+                <a href="/logout" class="nav-link nav-logout">Logout</a>
+            </div>
+        </nav>
+
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1 class="logo">
+                    <span class="logo-icon">🧠</span>
+                    <span class="logo-text">Emotion-Aware Study Assistant</span>
+                </h1>
+                <p class="tagline">Adaptive learning powered by emotional intelligence</p>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Emotion Input Section -->
+            <section class="input-section card">
+                <h2 class="section-title">How are you feeling right now?</h2>
+                <p class="section-description">Tell me about your current emotional state, and I'll provide personalized study recommendations.</p>
+                <form id="emotionForm" class="emotion-form">
+                    <div class="form-group">
+                        <textarea
+                            id="feelingInput"
+                            name="feeling"
+                            placeholder="E.g., I'm feeling stressed about my upcoming exam and overwhelmed with the amount of material..."
+                            rows="4"
+                            maxlength="500"
+                            required
+                        ></textarea>
+                        <div class="char-counter">
+                            <span id="charCount">0</span>/500
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-primary" id="analyzeBtn">
+                        <span class="btn-text">Analyze My Emotions</span>
+                        <span class="btn-loader" style="display: none;">
+                            <span class="spinner"></span> Analyzing...
+                        </span>
+                    </button>
+                </form>
+                <div id="errorMessage" class="error-message" style="display: none;"></div>
+            </section>
+
+            <!-- Results Section -->
+            <div id="resultsSection" style="display: none;">
+                <!-- Multi-Emotion Probability Card -->
+                <section class="emotion-result card">
+                    <h3 class="result-label">🎭 Emotion Analysis</h3>
+                    <div class="emotion-display">
+                        <div class="emotion-icon" id="emotionIcon">😊</div>
+                        <div class="emotion-info">
+                            <h2 class="emotion-name" id="emotionName">Happy</h2>
+                            <p class="emotion-secondary" id="emotionSecondary" style="display:none;"></p>
+                        </div>
+                    </div>
+                    <!-- Probability Bars -->
+                    <div class="prob-bars" id="probBars"></div>
+                </section>
+
+                <!-- Adaptive Study Plan Card -->
+                <section class="study-plan-card card" id="studyPlanCard">
+                    <h3 class="result-label">📅 Your Adaptive Study Plan</h3>
+                    <p class="plan-context" id="planContext"></p>
+                    <div class="plan-blocks" id="planBlocks"></div>
+                    <div class="plan-total" id="planTotal"></div>
+                </section>
+
+                <!-- Recommendations Card -->
+                <section class="recommendations card">
+                    <h3 class="recommendation-title" id="recommendationTitle">🌟 Keep the Momentum!</h3>
+                    <p class="study-tip" id="studyTip">Your positive energy is perfect for deep learning.</p>
+                    <div class="suggestions">
+                        <h4 class="suggestions-header">Personalized Suggestions:</h4>
+                        <ul id="suggestionsList" class="suggestions-list"></ul>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Session History Dashboard -->
+            <section class="dashboard card">
+                <h2 class="section-title">Session History</h2>
+                <div id="sessionsContainer" class="sessions-container">
+                    <p class="empty-state">No sessions yet. Start by sharing how you're feeling!</p>
+                </div>
+            </section>
+        </main>
+
+        <footer class="footer">
+            <p>&copy; 2026 Emotion-Aware Study Assistant | Designed for better learning outcomes</p>
+        </footer>
+    </div>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
+
+

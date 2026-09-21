@@ -1,0 +1,44 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ provider }} Login - Coming Soon</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='auth_shared.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="page-wrapper">
+        <div class="card">
+            <div class="left-panel">
+                <div class="blob blob-1"></div>
+                <div class="blob blob-2"></div>
+                <div class="left-content">
+                    <div class="icon-circle">🚧</div>
+                    <h2>Coming<br>Soon!</h2>
+                    <p>{{ provider }} login is being set up. Use username & password for now.</p>
+                </div>
+            </div>
+            <div class="right-panel">
+                <h1>{{ provider }} Login</h1>
+                <p class="subtitle">Social login requires OAuth credentials to be configured.</p>
+                <div class="coming-soon-box">
+                    <p>To enable {{ provider }} login, add your credentials to the <code>.env</code> file:</p>
+                    {% if provider == 'Google' %}
+                    <pre class="code-block">GOOGLE_CLIENT_ID=your-client-id
+GOOGLE_CLIENT_SECRET=your-secret</pre>
+                    <p>Get credentials at <a href="https://console.cloud.google.com" target="_blank">console.cloud.google.com</a></p>
+                    {% else %}
+                    <pre class="code-block">APPLE_CLIENT_ID=your-client-id
+APPLE_CLIENT_SECRET=your-secret</pre>
+                    <p>Get credentials at <a href="https://developer.apple.com" target="_blank">developer.apple.com</a></p>
+                    {% endif %}
+                </div>
+                <a href="/login" class="btn-primary btn-link">← Back to Sign In</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+

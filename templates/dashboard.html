@@ -1,0 +1,329 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div id="page-dashboard" class="page active">
+  <div class="dashboard-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;margin-bottom:14px;background:rgba(var(--p-accent-rgb),.03);border:1px solid var(--p-border);border-radius:var(--radius-md)">
+                {% set user = get_user_by_id(session.get('user_id')) %}
+        <div id="sb-avatar" style="width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--p-accent),var(--p-accent2));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#0a0a0f;flex-shrink:0;overflow:hidden;">
+            {% if user and user.profile_photo %}
+                <img src="{{ user.profile_photo }}" style="width:100%; height:100%; object-fit:cover;">
+            {% else %}
+                {{ username[0]|upper }}
+            {% endif %}
+        </div>
+        <div><div id="sb-name" style="font-size:13px;font-weight:600;color:var(--p-text)">{{ username }}</div><div style="font-size:11px;color:var(--p-text-muted)">7 day streak &#128293;</div></div>
+      </div>
+
+      <div class="sidebar-section">Dashboard</div>
+      <button class="sidebar-item active" id="sb-home" onclick="showDashTab('home')"><span>&#11044;</span><span style="flex:1">Overview</span></button>
+      <button class="sidebar-item" id="sb-session" onclick="showDashTab('session')"><span>&#9678;</span><span style="flex:1">Study Session</span></button>
+      <button class="sidebar-item" id="sb-materials" onclick="showDashTab('materials')"><span>&#128218;</span><span style="flex:1">Materials</span><span id="mat-badge" style="display:none" class="nav-badge">0</span></button>
+      <button class="sidebar-item" id="sb-history" onclick="showDashTab('history')"><span>&#9672;</span><span style="flex:1">History</span></button>
+      <button class="sidebar-item" id="sb-progress" onclick="showDashTab('progress')"><span>&#9673;</span><span style="flex:1">Progress</span></button>
+
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">Reports & Tools</div>
+      <a href="{{ url_for('analytics') }}" class="sidebar-item"><span>&#128200;</span><span style="flex:1">Analytics</span></a>
+      <a href="{{ url_for('weekly_report') }}" class="sidebar-item"><span>&#128203;</span><span style="flex:1">Weekly Report</span></a>
+      <a href="{{ url_for('profile') }}" class="sidebar-item"><span>&#128100;</span><span style="flex:1">Profile</span></a>
+
+      <button id="theme-toggle-btn" class="theme-toggle" onclick="toggleTheme()"><span>&#127769;</span> Dark</button>
+      <div style="padding-top:6px">
+        <a href="{{ url_for('logout') }}" class="sidebar-item" style="color:var(--p-text-faint)"><span>&#8617;</span> Sign out</a>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="main-content">
+
+      <!-- HOME TAB -->
+      <div id="tab-home">
+        <div style="margin-bottom:28px">
+          <h1 style="font-size:26px;font-weight:800;letter-spacing:-.03em;margin-bottom:5px;color:var(--p-text)">Good day, {{ username }} &#128075;</h1>
+          <p style="color:var(--p-text-muted);font-size:13.5px">You're on a 7-day streak. Keep it alive today.</p>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:24px">
+          <div class="card stat-card"><div style="display:flex;justify-content:space-between;align-items:flex-start"><span class="stat-icon">&#9678;</span><span class="stat-badge">+3</span></div><div class="stat-value">{{ sessions_this_week }}</div><div class="stat-label">Sessions this week</div></div>
+          <div class="card stat-card"><div style="display:flex;justify-content:space-between;align-items:flex-start"><span class="stat-icon">&#9672;</span><span class="stat-badge">+2.1h</span></div><div class="stat-value">{{ total_hours|round(1) }}h</div><div class="stat-label">Study hours</div></div>
+          <div class="card stat-card"><div style="display:flex;justify-content:space-between;align-items:flex-start"><span class="stat-icon">&#9673;</span><span class="stat-badge">+5%</span></div><div class="stat-value">{{ avg_score }}%</div><div class="stat-label">Avg. score</div></div>
+          <div class="card stat-card"><div style="display:flex;justify-content:space-between;align-items:flex-start"><span class="stat-icon">&#128218;</span><span class="stat-badge">active</span></div><div id="home-mat-count" class="stat-value">0</div><div class="stat-label">Materials loaded</div></div>
+        </div>
+
+        {% if study_plan %}
+        <!-- AI Study Plan Card -->
+        <div class="card study-plan-glow" style="padding:22px; margin-bottom: 24px;">
+          <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap:wrap; gap:10px;">
+            <h3 style="font-size:13px; font-weight:700; color:var(--p-accent); text-transform:uppercase; letter-spacing:.05em; display:flex; align-items:center; gap:8px;">
+              <span style="font-size:18px;">&#10024;</span> AI Daily Study Plan
+            </h3>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <select onchange="updateMood(this.value)" class="premium-select">
+                <option value="" disabled selected>Select Mood...</option>
+                <option value="happy">&#128522; Happy</option>
+                <option value="motivated">&#128170; Motivated</option>
+                <option value="neutral">&#128528; Neutral</option>
+                <option value="stressed">&#128543; Stressed</option>
+                <option value="tired">&#128564; Tired</option>
+              </select>
+              <span id="current-mood-badge" class="tag">Current: <span id="display-mood">{{ recent_sessions[0].emotion if recent_sessions else 'neutral' }}</span></span>
+            </div>
+          </div>
+          <div id="study-plan-details">
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
+              <div>
+                <div style="font-size:11px; color:var(--p-text-muted); text-transform:uppercase; margin-bottom:4px;">Focus Task</div>
+                <div style="font-size:16px; font-weight:700; color:var(--p-text);">{{ study_plan.task }}</div>
+              </div>
+              <div>
+                <div style="font-size:11px; color:var(--p-text-muted); text-transform:uppercase; margin-bottom:4px;">Target Duration</div>
+                <div style="font-size:16px; font-weight:700; color:var(--p-text);">{{ study_plan.duration }}</div>
+              </div>
+            </div>
+            <div style="margin-top:15px; padding-top:15px; border-top: 1px solid var(--p-border); font-size:13px; color:var(--p-text-dim); font-style: italic;">
+              "{{ study_plan.recommendation }}"
+            </div>
+          </div>
+        </div>
+        {% endif %}
+        
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px">
+          <div class="card" style="padding:22px">
+            <h3 style="font-size:13px;font-weight:700;margin-bottom:16px;color:var(--p-text-dim);text-transform:uppercase;letter-spacing:.05em">Study Activity</h3>
+            <div id="heatmap-grid" style="display:grid;grid-template-columns:repeat(7,1fr);grid-template-rows:repeat(5,1fr);gap:4px;aspect-ratio:7/5"></div>
+            <div style="display:flex;justify-content:space-between;margin-top:12px;font-size:10px;color:var(--p-text-faint)">
+                <span>Less</span>
+                <div style="display:flex;gap:3px">
+                    <div style="width:10px;height:10px;border-radius:2px;background:rgba(var(--p-accent-rgb),.05)"></div>
+                    <div style="width:10px;height:10px;border-radius:2px;background:rgba(var(--p-accent-rgb),.2)"></div>
+                    <div style="width:10px;height:10px;border-radius:2px;background:rgba(var(--p-accent-rgb),.5)"></div>
+                    <div style="width:10px;height:10px;border-radius:2px;background:rgba(var(--p-accent-rgb),.8)"></div>
+                </div>
+                <span>More</span>
+            </div>
+          </div>
+          
+          <!-- Practice Quiz Section -->
+          <div class="card" style="padding:22px; display:flex; flex-direction:column;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+              <h3 style="font-size:13px; font-weight:700; color:var(--p-text-dim); text-transform:uppercase; letter-spacing:.05em">Practice Quiz</h3>
+              <button class="btn-sm" id="gen-quiz-btn" onclick="generateQuizFromMaterials()">Generate from Materials</button>
+            </div>
+            <div id="quiz-container" style="flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center; min-height:150px; background:rgba(var(--p-accent-rgb),0.01); border-radius:var(--radius-md); border: 1px dashed var(--p-border)">
+                <div id="quiz-placeholder" style="text-align:center; padding:20px;">
+                    <div style="font-size:24px; margin-bottom:10px; opacity:0.3">&#128221;</div>
+                    <div style="font-size:12px; color:var(--p-text-muted)">Add study materials, then generate practice questions.</div>
+                </div>
+                <div id="quiz-content" style="display:none; width:100%; padding: 10px;"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="padding:22px 26px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;background:radial-gradient(ellipse at 0% 50%,rgba(var(--p-accent-rgb),.05) 0%,transparent 60%)">
+          <div><div style="font-size:16px;font-weight:700;color:var(--p-text);margin-bottom:3px">Ready for today's session?</div><div style="font-size:13px;color:var(--p-text-muted)">Add study materials to give the AI more context.</div></div>
+          <div style="display:flex;gap:8px">
+            <button class="btn-ghost" style="font-size:13px;padding:9px 16px" onclick="showDashTab('materials')">+ Materials</button>
+            <button class="btn-primary" onclick="showDashTab('session')">Start session &#8594;</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SESSION TAB -->
+      <div id="tab-session" style="display:none">
+        <div class="session-grid no-notes" id="session-grid">
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <div class="card" style="padding:16px">
+              <div style="font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--p-text-faint);text-transform:uppercase;margin-bottom:11px">Mood</div>
+              <div id="mood-chips" style="display:flex;flex-wrap:wrap;gap:5px"></div>
+            </div>
+            <div class="card" style="padding:16px;text-align:center">
+              <div style="font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--p-text-faint);text-transform:uppercase;margin-bottom:10px">Timer</div>
+              <div id="timer-display" style="font-size:38px;font-weight:800;color:var(--p-text-faint);letter-spacing:-.04em;margin-bottom:12px;transition:color .3s">00:00</div>
+              <div style="display:flex;gap:6px;justify-content:center">
+                <button class="btn-sm" id="timer-btn" onclick="toggleTimer()">&#9654; Start</button>
+                <button class="btn-sm" onclick="resetTimer()">&#8634;</button>
+              </div>
+            </div>
+            <div class="card" style="padding:16px;">
+                <div style="font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--p-text-faint);text-transform:uppercase;margin-bottom:11px">Active Context <span id="mat-context-badge" class="nav-badge" style="display:none">0</span></div>
+                <div id="session-mat-list" class="scroll-y" style="max-height:150px"></div>
+            </div>
+          </div>
+          <div class="card" style="display:flex;flex-direction:column;height:calc(100vh - 140px);min-height:480px">
+            <div style="padding:13px 17px;border-bottom:1px solid var(--p-border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+              <div style="display:flex;align-items:center;gap:8px">
+                <div style="width:7px;height:7px;border-radius:50%;background:var(--p-accent);animation:blink 2s ease infinite"></div>
+                <span style="font-size:13px;font-weight:600;color:var(--p-text-dim)">AI Tutor</span>
+                <span id="chat-meta" style="font-size:12px;color:var(--p-text-faint)">&#183; Mathematics &#183; Focused</span>
+              </div>
+              
+              <div style="display:flex;align-items:center;gap:12px">
+                <div style="display:flex;align-items:center;gap:6px">
+                  <span style="font-size:10px;font-weight:700;color:var(--p-text-faint);text-transform:uppercase;letter-spacing:.05em">Persona</span>
+                  <select id="persona-select" class="premium-select" style="padding: 4px 24px 4px 8px; font-size: 11px;">
+                    <option value="Socratic">Socratic</option>
+                    <option value="Cheerleader">Cheerleader</option>
+                    <option value="Drill Sergeant">Drill Sergeant</option>
+                    <option value="Scientist">Scientist</option>
+                  </select>
+                </div>
+                <div style="display:flex;align-items:center;gap:6px">
+                  <span style="font-size:10px;font-weight:700;color:var(--p-text-faint);text-transform:uppercase;letter-spacing:.05em">Socratic</span>
+                  <label class="switch">
+                    <input type="checkbox" id="socratic-toggle" onchange="toggleSocratic()">
+                    <span class="slider"></span>
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div id="chat-messages" class="scroll-y" style="flex:1;padding:16px;display:flex;flex-direction:column;gap:12px"></div>
+            <div style="padding:12px 16px;border-top:1px solid var(--p-border);display:flex;gap:9px;align-items:flex-end">
+              <textarea id="chat-input" class="input-field" rows="1" placeholder="Ask anything..." style="resize:none;line-height:1.5" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage();}" oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,100)+'px';updateSendBtn();"></textarea>
+              <button id="send-btn" onclick="sendMessage()" style="width:40px;height:40px;flex-shrink:0;border-radius:9px;border:none;background:rgba(255,255,255,.06);color:var(--p-text-faint);cursor:not-allowed;font-size:15px;transition:all .2s;display:flex;align-items:center;justify-content:center">&#8593;</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MATERIALS TAB -->
+      <div id="tab-materials" style="display:none">
+        <div style="display:grid;grid-template-columns:1fr 280px;gap:20px;height:calc(100vh - 140px);min-height:500px">
+          <div class="card" style="display:flex;flex-direction:column;overflow:hidden">
+            <div style="padding:16px; border-bottom:1px solid var(--p-border); display:flex; justify-content:space-between; align-items:center; gap:15px; background:rgba(var(--p-accent-rgb),0.01)">
+              <div style="position:relative; flex:1">
+                <span style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--p-text-muted); font-size:14px">&#128269;</span>
+                <input type="text" placeholder="Search 50,000+ materials..." 
+                       style="width:100%; background:rgba(var(--p-accent-rgb),0.03); border:1px solid var(--p-border); border-radius:var(--radius-sm); padding:10px 15px 10px 40px; color:var(--p-text); font-size:13px; outline:none; font-family:var(--p-font); transition:all var(--transition)"
+                       oninput="loadLibrary(1, this.value)"
+                       onfocus="this.style.borderColor='rgba(var(--p-accent-rgb),.4)'"
+                       onblur="this.style.borderColor='var(--p-border)'">
+              </div>
+              <div style="display:flex; gap:8px">
+                <button class="btn-ghost" style="padding:8px 15px; font-size:12px" onclick="prevPage()">&#8592; Prev</button>
+                <button class="btn-ghost" style="padding:8px 15px; font-size:12px" onclick="nextPage()">Next &#8594;</button>
+              </div>
+            </div>
+            <div style="flex:1; padding:16px;" class="scroll-y">
+              <div id="library-container">
+                <div style="padding:40px; text-align:center; color:var(--p-text-muted)">Loading library...</div>
+              </div>
+            </div>
+            <div style="padding:16px;border-top:1px solid var(--p-border);background:rgba(var(--p-accent-rgb), 0.02)">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                <h3 style="font-size:11px; font-weight:700; color:var(--p-accent); text-transform:uppercase; letter-spacing:.05em">AI Flashcards</h3>
+                <button class="btn-sm" id="gen-flashcards-btn" onclick="generateFlashcards()" style="font-size:10px">Generate from Context</button>
+              </div>
+              <div id="flashcards-display" style="display:none; flex-direction:column; align-items:center;">
+                <div class="flashcard-container" id="active-flashcard" onclick="this.classList.toggle('flipped')">
+                  <div class="flashcard-inner">
+                    <div class="flashcard-front" id="flash-front">Question?</div>
+                    <div class="flashcard-back" id="flash-back">Answer!</div>
+                  </div>
+                </div>
+                <div style="display:flex; gap:12px; margin-top:10px;">
+                  <button class="btn-sm" onclick="prevFlashcard()">&#8592;</button>
+                  <span id="flashcard-counter" style="font-size:12px; color:var(--p-text-dim)">1 / 5</span>
+                  <button class="btn-sm" onclick="nextFlashcard()">&#8594;</button>
+                </div>
+              </div>
+              <div id="flashcards-placeholder" style="text-align:center; padding:20px; font-size:12px; color:var(--p-text-muted)">
+                No flashcards generated yet.
+              </div>
+            </div>
+            <div style="padding:16px;border-top:1px solid var(--p-border);background:rgba(var(--p-accent-rgb),0.01)">
+              <div style="display:flex;gap:12px;margin-bottom:12px">
+                <button class="btn-ghost active" style="font-size:12px;padding:6px 12px">Paste Note</button>
+                <label class="btn-ghost" style="font-size:12px;padding:6px 12px;cursor:pointer">
+                  Upload PDF
+                  <input type="file" id="file-upload" style="display:none" accept=".pdf,.txt" onchange="handleFileUpload(event)">
+                </label>
+              </div>
+              <div style="display:flex;gap:10px;align-items:flex-end">
+                <textarea id="note-editor" class="input-field" rows="1" placeholder="Paste study notes here..." style="resize:none;font-size:12.5px" oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,150)+'px'"></textarea>
+                <div style="display:flex; flex-direction:column; gap:8px;">
+                    <button class="btn-primary" style="padding:10px 18px;font-size:12.5px;flex-shrink:0" onclick="addPastedNote()">Save Note</button>
+                    <button class="btn-ghost" style="padding:10px 18px;font-size:12.5px;flex-shrink:0" onclick="loadNote()">Load Note</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card" style="display:flex;flex-direction:column;padding:16px">
+            <h3 style="font-size:11px;font-weight:700;color:var(--p-text-faint);text-transform:uppercase;letter-spacing:.08em;margin-bottom:16px;">Active Materials</h3>
+            <div id="active-mat-list" style="flex:1" class="scroll-y"></div>
+            <button class="btn-primary" style="width:100%;margin-top:12px" onclick="showDashTab('session')">Start with context &#8594;</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- HISTORY TAB -->
+      <div id="tab-history" style="display:none">
+        <div class="card" style="padding:24px">
+            <h2 style="font-size:20px;font-weight:800;color:var(--p-text);margin-bottom:20px">Study History</h2>
+            <div style="display:grid;gap:12px">
+              {% if recent_sessions %}
+                {% for s in recent_sessions %}
+                <div class="card" style="padding:16px;display:flex;justify-content:space-between;align-items:center;background:rgba(var(--p-accent-rgb),.02)">
+                    <div style="display:flex;align-items:center;gap:14px">
+                        <div style="font-size:24px">{{ emotion_icons.get(s.emotion, "&#9678;") }}</div>
+                        <div><div style="font-size:14px;font-weight:600;color:var(--p-text-dim)">{{ s.emotion|title }} Session</div><div style="font-size:11px;color:var(--p-text-muted)">{{ s.timestamp }}</div></div>
+                    </div>
+                    <div style="text-align:right">
+                        <div style="font-size:12px;color:var(--p-text-dim);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ s.suggestion }}</div>
+                    </div>
+                </div>
+                {% endfor %}
+              {% else %}
+                <div style="padding:40px;text-align:center;color:var(--p-text-muted)">No sessions recorded yet.</div>
+              {% endif %}
+            </div>
+        </div>
+      </div>
+
+      <!-- PROGRESS TAB -->
+      <div id="tab-progress" style="display:none">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+            <div class="card" style="padding:24px">
+                <h3 style="font-size:13px;font-weight:700;color:var(--p-text-dim);text-transform:uppercase;margin-bottom:20px">Hours Studied (Last 7 Days)</h3>
+                <div style="height:200px;display:flex;align-items:flex-end;gap:12px;padding-bottom:10px">
+                    {% for day in weekly_stats %}
+                    <div style="flex:1;background:linear-gradient(180deg, rgba(var(--p-accent-rgb),{{ 0.3 + (day.hours / 10) }}), rgba(var(--p-accent2-rgb),0.1));border-radius:6px;height:{{ (day.hours * 30) + 5 }}px;transition:height .3s;position:relative" title="{{ day.hours }} hrs">
+                        <div style="position:absolute;top:-20px;left:50%;transform:translateX(-50%);font-size:9px;color:var(--p-accent);opacity:0.8">{{ day.hours }}h</div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--p-text-faint);margin-top:8px">
+                    {% for day in weekly_stats %}<span>{{ day.day_name }}</span>{% endfor %}
+                </div>
+            </div>
+            <div class="card" style="padding:24px">
+                <h3 style="font-size:13px;font-weight:700;color:var(--p-text-dim);text-transform:uppercase;margin-bottom:20px">Mood Distribution</h3>
+                <div style="display:flex;flex-direction:column;gap:12px">
+                    {% set total = sessions_this_week if sessions_this_week > 0 else 1 %}
+                    {% for emotion, count in stats.items() %}
+                      {% if loop.index <= 3 %}
+                        <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+                          <span style="font-size:12px;color:var(--p-text-dim)">{{ emotion|title }}</span>
+                          <span style="font-size:12px;color:var(--p-accent)">{{ (count / total * 100)|round|int }}%</span>
+                        </div>
+                        <div class="progress-bar"><div class="progress-fill" style="width:{{ (count / total * 100)|round|int }}%"></div></div>
+                      {% endif %}
+                    {% endfor %}
+                    {% if not stats %}
+                        <div style="padding:20px;text-align:center;font-size:12px;color:var(--p-text-muted)">No mood data recorded yet.</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+
+{% endblock %}

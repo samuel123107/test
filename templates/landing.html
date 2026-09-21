@@ -1,0 +1,65 @@
+﻿{% extends "base.html" %}
+
+{% block content %}
+<div id="page-landing" class="page active">
+  <section style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:100px 20px 80px;position:relative;overflow:hidden;text-align:center">
+    <div class="hero-glow"></div>
+    <div id="orbs-container"></div>
+
+    <div class="fadeup">
+      <div class="tag" style="margin-bottom:28px">
+        <span style="animation:blink 2s ease infinite">◉</span> Emotion-Aware Learning AI
+      </div>
+    </div>
+    <h1 class="fadeup d1" style="font-size:clamp(48px,8vw,88px);font-weight:800;line-height:1;letter-spacing:-.04em;margin-bottom:28px;max-width:800px;color:#e8eaf0">
+      Study smarter.<br/><span class="shimmer-text">Feel better.</span>
+    </h1>
+    <p class="fadeup d2" style="font-size:clamp(15px,2vw,18px);color:#5a6280;max-width:520px;line-height:1.7;margin-bottom:44px">
+      The first AI tutor that reads your emotional state, studies your materials, and adapts in real time.
+    </p>
+    <div class="fadeup d3" style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
+      <a href="{{ url_for('register') }}" class="btn-primary" style="font-size:15px;padding:15px 36px">Start free session →</a>
+      <a href="{{ url_for('login') }}" class="btn-ghost" style="font-size:15px;padding:15px 28px">Sign in</a>
+    </div>
+
+    <div class="fadeup d4" style="display:flex;margin-top:80px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:16px;overflow:hidden;flex-wrap:wrap">
+      <div style="padding:22px 36px;border-right:1px solid rgba(255,255,255,.06);text-align:center"><div style="font-size:28px;font-weight:800;color:#e8eaf0;letter-spacing:-.03em">47K+</div><div style="font-size:11.5px;color:#3a4055;font-weight:600;margin-top:4px;letter-spacing:.05em;text-transform:uppercase">Active Learners</div></div>
+      <div style="padding:22px 36px;border-right:1px solid rgba(255,255,255,.06);text-align:center"><div style="font-size:28px;font-weight:800;color:#e8eaf0;letter-spacing:-.03em">3.2M</div><div style="font-size:11.5px;color:#3a4055;font-weight:600;margin-top:4px;letter-spacing:.05em;text-transform:uppercase">Sessions Completed</div></div>
+      <div style="padding:22px 36px;border-right:1px solid rgba(255,255,255,.06);text-align:center"><div style="font-size:28px;font-weight:800;color:#e8eaf0;letter-spacing:-.03em">94%</div><div style="font-size:11.5px;color:#3a4055;font-weight:600;margin-top:4px;letter-spacing:.05em;text-transform:uppercase">Retention Rate</div></div>
+      <div style="padding:22px 36px;text-align:center"><div style="font-size:28px;font-weight:800;color:#e8eaf0;letter-spacing:-.03em">4.9★</div><div style="font-size:11.5px;color:#3a4055;font-weight:600;margin-top:4px;letter-spacing:.05em;text-transform:uppercase">Average Rating</div></div>
+    </div>
+  </section>
+
+  <section style="padding:80px 40px;max-width:1100px;margin:0 auto">
+    <div style="text-align:center;margin-bottom:56px">
+      <div class="tag" style="margin-bottom:16px">How it works</div>
+      <h2 style="font-size:clamp(28px,4vw,46px);font-weight:800;letter-spacing:-.04em;color:#e8eaf0">Built around how humans actually learn</h2>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px">
+      <div class="card feature-card" style="padding:28px 24px"><div style="width:44px;height:44px;border-radius:12px;background:rgba(168,255,62,.1);border:1px solid rgba(168,255,62,.2);display:flex;align-items:center;justify-content:center;font-size:18px;color:#a8ff3e;margin-bottom:20px">◎</div><h3 style="font-size:16px;font-weight:700;color:#e8eaf0;margin-bottom:10px">Mood Detection</h3><p style="font-size:13.5px;color:#4a5270;line-height:1.7">The AI adapts its entire teaching style to your emotional state — patient when anxious, challenging when focused.</p></div>
+      <div class="card feature-card" style="padding:28px 24px"><div style="width:44px;height:44px;border-radius:12px;background:rgba(168,255,62,.1);border:1px solid rgba(168,255,62,.2);display:flex;align-items:center;justify-content:center;font-size:18px;color:#a8ff3e;margin-bottom:20px">◈</div><h3 style="font-size:16px;font-weight:700;color:#e8eaf0;margin-bottom:10px">Adaptive Sessions</h3><p style="font-size:13.5px;color:#4a5270;line-height:1.7">Every session morphs to your energy. Tired? We go short and sharp. In flow? We go deep.</p></div>
+      <div class="card feature-card" style="padding:28px 24px"><div style="width:44px;height:44px;border-radius:12px;background:rgba(168,255,62,.1);border:1px solid rgba(168,255,62,.2);display:flex;align-items:center;justify-content:center;font-size:18px;color:#a8ff3e;margin-bottom:20px">◉</div><h3 style="font-size:16px;font-weight:700;color:#e8eaf0;margin-bottom:10px">Study Materials</h3><p style="font-size:13.5px;color:#4a5270;line-height:1.7">Upload files, paste notes, or browse the built-in library. The AI studies your material before tutoring you.</p></div>
+      <div class="card feature-card" style="padding:28px 24px"><div style="width:44px;height:44px;border-radius:12px;background:rgba(168,255,62,.1);border:1px solid rgba(168,255,62,.2);display:flex;align-items:center;justify-content:center;font-size:18px;color:#a8ff3e;margin-bottom:20px">◇</div><h3 style="font-size:16px;font-weight:700;color:#e8eaf0;margin-bottom:10px">Progress Streaks</h3><p style="font-size:13.5px;color:#4a5270;line-height:1.7">Build study habits with streak tracking, session history, and weekly goals that actually stick.</p></div>
+    </div>
+  </section>
+
+  <section style="padding:40px 40px 100px;text-align:center">
+    <div style="max-width:680px;margin:0 auto;padding:56px 40px;background:radial-gradient(ellipse at 50% 0%,rgba(168,255,62,.12) 0%,rgba(255,255,255,.02) 60%);border:1px solid rgba(168,255,62,.15);border-radius:24px">
+      <h2 style="font-size:clamp(26px,4vw,40px);font-weight:800;letter-spacing:-.04em;margin-bottom:14px;color:#e8eaf0">Ready to study smarter?</h2>
+      <p style="color:#4a5270;font-size:14px;margin-bottom:32px">Free forever for students. No credit card required.</p>
+      <a href="{{ url_for('register') }}" class="btn-primary" style="font-size:15px;padding:15px 40px">Create free account →</a>
+    </div>
+  </section>
+  <footer style="border-top:1px solid rgba(255,255,255,.06);padding:24px 40px;display:flex;align-items:center;justify-content:space-between;color:#2a3045;font-size:13px">
+    <span style="font-weight:700;color:#3a4055">Study.ai</span><span>© 2026 — Built for learners</span>
+  </footer>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  window.addEventListener('load', () => {
+    initLandingOrbs();
+  });
+</script>
+{% endblock %}

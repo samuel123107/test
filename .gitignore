@@ -1,0 +1,34 @@
+# Environment
+.env
+*.env
+
+# Database
+study_assistant.db
+*.db
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+dist/
+build/
+venv/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Uploads
+static/uploads/
+
+# Misc
+*.log

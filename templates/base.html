@@ -1,0 +1,69 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>{% block title %}Study.ai — Emotion-Aware Learning{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    {% block head %}{% endblock %}
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+    <div class="noise-overlay"></div>
+    <div class="grid-bg"></div>
+
+    <!-- NAV -->
+    <nav>
+        <a href="{{ url_for('landing') }}" class="nav-logo">
+            <div class="nav-mark">S</div>
+            <span class="nav-name">Study<span>.ai</span></span>
+        </a>
+        <div class="nav-actions">
+            {% if session.get('user_id') %}
+                <a href="{{ url_for('index') }}" class="btn-ghost" style="padding:8px 18px;font-size:13px">Dashboard</a>
+                                {% set user = get_user_by_id(session.get('user_id')) %}
+                <div class="user-avatar" title="{{ session.get('username') }}" style="width:34px; height:34px; border-radius:10px; overflow:hidden; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg, #a8ff3e, #22d3a5); font-weight:800; color:#0a0a0f;">
+                    {% if user and user.profile_photo %}
+                        <img src="{{ user.profile_photo }}" style="width:100%; height:100%; object-fit:cover;">
+                    {% else %}
+                        {{ session.get('username')[0]|upper if session.get('username') else 'U' }}
+                    {% endif %}
+                </div>
+            {% else %}
+                <a href="{{ url_for('login') }}" class="btn-ghost" style="padding:8px 18px;font-size:13px">Log in</a>
+                <a href="{{ url_for('register') }}" class="btn-primary" style="padding:8px 18px;font-size:13px">Get started →</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    {% block content %}{% endblock %}
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    {% block scripts %}{% endblock %}
+
+    <!-- Bottom Nav for Mobile -->
+    <div class="bottom-nav">
+        <a href="javascript:void(0)" onclick="showDashTab('home')" class="bottom-nav-item active" id="bn-home">
+            <span>⬡</span>
+            <span>Home</span>
+        </a>
+        <a href="javascript:void(0)" onclick="showDashTab('session')" class="bottom-nav-item" id="bn-session">
+            <span>◎</span>
+            <span>Session</span>
+        </a>
+        <a href="javascript:void(0)" onclick="showDashTab('materials')" class="bottom-nav-item" id="bn-materials">
+            <span>📚</span>
+            <span>Library</span>
+        </a>
+        <a href="{{ url_for('profile') }}" class="bottom-nav-item">
+            <span>👤</span>
+            <span>Profile</span>
+        </a>
+    </div>
+
+</body>
+</html>
+
